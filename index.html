@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Sitio Web Minimalista</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #3498db, #8e44ad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .edit-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .edit-toggle:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .tab.active {
+            background: linear-gradient(45deg, #3498db, #8e44ad);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .tab:not(.active):hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .tab-close {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .edit-mode .tab-close {
+            display: block;
+        }
+        
+        .content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+        }
+        
+        .content h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .content p {
+            margin-bottom: 15px;
+            color: #555;
+            line-height: 1.8;
+        }
+        
+        .editor-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease;
+            z-index: 999;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .editor-panel.open {
+            right: 0;
+        }
+        
+        .editor-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(241, 243, 244, 0.5);
+            border-radius: 10px;
+        }
+        
+        .editor-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #3498db, #8e44ad);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 768px) {
+            .editor-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                min-width: auto;
+            }
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" onclick="closeEditor()"></div>
+    
+    <button class="edit-toggle" onclick="toggleEditor()">✏️ Editar</button>
+    
+    <div class="container">
+        <header class="fade-in">
+            <h1 id="site-title">Mi Sitio Web</h1>
+            <p class="subtitle" id="site-subtitle">Diseño minimalista y funcional</p>
+        </header>
+        
+        <div class="tabs" id="tabs-container">
+            <button class="tab active" data-tab="inicio">🏠 Inicio</button>
+        </div>
+        
+        <div class="content fade-in" id="content">
+            <div class="tab-content active" data-content="inicio">
+                <h2>Bienvenido</h2>
+                <p>Esta es una página web minimalista con un editor integrado. Puedes personalizar el contenido y añadir nuevas pestañas directamente desde el navegador.</p>
+                <p>Haz clic en el botón "Editar" en la esquina superior derecha para comenzar a personalizar tu sitio web.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="editor-panel" id="editor-panel">
+        <div class="editor-section">
+            <h3>🎨 Configuración General</h3>
+            <div class="form-group">
+                <label for="title-input">Título del sitio:</label>
+                <input type="text" id="title-input" placeholder="Mi Sitio Web">
+            </div>
+            <div class="form-group">
+                <label for="subtitle-input">Subtítulo:</label>
+                <input type="text" id="subtitle-input" placeholder="Diseño minimalista y funcional">
+            </div>
+            <button class="btn" onclick="updateSiteInfo()">💾 Actualizar Info</button>
+        </div>
+        
+        <div class="editor-section">
+            <h3>📑 Nueva Pestaña</h3>
+            <div class="form-group">
+                <label for="new-tab-name">Nombre de la pestaña:</label>
+                <input type="text" id="new-tab-name" placeholder="Nueva Pestaña">
+            </div>
+            <div class="form-group">
+                <label for="new-tab-icon">Icono (emoji):</label>
+                <input type="text" id="new-tab-icon" placeholder="📄" maxlength="2">
+            </div>
+            <button class="btn" onclick="addNewTab()">➕ Añadir Pestaña</button>
+        </div>
+        
+        <div class="editor-section">
+            <h3>✏️ Editar Contenido</h3>
+            <div class="form-group">
+                <label for="content-tab-select">Seleccionar pestaña:</label>
+                <select id="content-tab-select" style="width: 100%; padding: 10px; border-radius: 5px; border: 2px solid #e1e8ed;">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="content-title">Título del contenido:</label>
+                <input type="text" id="content-title" placeholder="Título">
+            </div>
+            <div class="form-group">
+                <label for="content-text">Contenido:</label>
+                <textarea id="content-text" placeholder="Escribe aquí el contenido..."></textarea>
+            </div>
+            <button class="btn" onclick="updateContent()">💾 Actualizar Contenido</button>
+        </div>
+        
+        <div class="editor-section">
+            <h3>🗑️ Gestión</h3>
+            <button class="btn btn-danger" onclick="resetWebsite()">🔄 Resetear Todo</button>
+        </div>
+    </div>
+    
+    <script>
+        // Estado de la aplicación
+        let isEditMode = false;
+        let activeTab = 'inicio';
+        let tabs = {
+            'inicio': {
+                name: 'Inicio',
+                icon: '🏠',
+                title: 'Bienvenido',
+                content: 'Esta es una página web minimalista con un editor integrado. Puedes personalizar el contenido y añadir nuevas pestañas directamente desde el navegador.\n\nHaz clic en el botón "Editar" en la esquina superior derecha para comenzar a personalizar tu sitio web.'
+            }
+        };
+        
+        // Funciones principales
+        function toggleEditor() {
+            isEditMode = !isEditMode;
+            const panel = document.getElementById('editor-panel');
+            const overlay = document.querySelector('.overlay');
+            const body = document.body;
+            
+            if (isEditMode) {
+                panel.classList.add('open');
+                overlay.classList.add('active');
+                body.classList.add('edit-mode');
+                loadEditorData();
+            } else {
+                closeEditor();
+            }
+        }
+        
+        function closeEditor() {
+            isEditMode = false;
+            const panel = document.getElementById('editor-panel');
+            const overlay = document.querySelector('.overlay');
+            const body = document.body;
+            
+            panel.classList.remove('open');
+            overlay.classList.remove('active');
+            body.classList.remove('edit-mode');
+        }
+        
+        function loadEditorData() {
+            // Cargar información actual
+            document.getElementById('title-input').value = document.getElementById('site-title').textContent;
+            document.getElementById('subtitle-input').value = document.getElementById('site-subtitle').textContent;
+            
+            // Actualizar selector de pestañas
+            updateTabSelector();
+            
+            // Cargar contenido de la pestaña activa
+            loadTabContent();
+        }
+        
+        function updateSiteInfo() {
+            const title = document.getElementById('title-input').value;
+            const subtitle = document.getElementById('subtitle-input').value;
+            
+            if (title) document.getElementById('site-title').textContent = title;
+            if (subtitle) document.getElementById('site-subtitle').textContent = subtitle;
+            
+            showNotification('✅ Información actualizada');
+        }
+        
+        function addNewTab() {
+            const name = document.getElementById('new-tab-name').value;
+            const icon = document.getElementById('new-tab-icon').value || '📄';
+            
+            if (!name) {
+                showNotification('❌ Por favor, ingresa un nombre para la pestaña');
+                return;
+            }
+            
+            const tabId = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            
+            if (tabs[tabId]) {
+                showNotification('❌ Ya existe una pestaña con ese nombre');
+                return;
+            }
+            
+            // Crear nueva pestaña
+            tabs[tabId] = {
+                name: name,
+                icon: icon,
+                title: name,
+                content: 'Contenido de la pestaña ' + name + '. Edita este texto usando el panel de edición.'
+            };
+            
+            renderTabs();
+            switchTab(tabId);
+            
+            // Limpiar formulario
+            document.getElementById('new-tab-name').value = '';
+            document.getElementById('new-tab-icon').value = '';
+            
+            showNotification('✅ Pestaña añadida correctamente');
+            updateTabSelector();
+        }
+        
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+            
+            Object.entries(tabs).forEach(([id, tab]) => {
+                const button = document.createElement('button');
+                button.className = `tab ${id === activeTab ? 'active' : ''}`;
+                button.setAttribute('data-tab', id);
+                button.innerHTML = `${tab.icon} ${tab.name}`;
+                
+                if (id !== 'inicio') {
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'tab-close';
+                    closeBtn.innerHTML = '×';
+                    closeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteTab(id);
+                    };
+                    button.appendChild(closeBtn);
+                }
+                
+                button.onclick = () => switchTab(id);
+                container.appendChild(button);
+            });
+        }
+        
+        function switchTab(tabId) {
+            activeTab = tabId;
+            renderTabs();
+            renderContent();
+            if (isEditMode) loadTabContent();
+        }
+        
+        function renderContent() {
+            const content = document.getElementById('content');
+            const tab = tabs[activeTab];
+            
+            if (tab) {
+                content.innerHTML = `
+                    <div class="tab-content active" data-content="${activeTab}">
+                        <h2>${tab.title}</h2>
+                        ${tab.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+                    </div>
+                `;
+            }
+        }
+        
+        function updateTabSelector() {
+            const select = document.getElementById('content-tab-select');
+            select.innerHTML = '';
+            
+            Object.entries(tabs).forEach(([id, tab]) => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = `${tab.icon} ${tab.name}`;
+                if (id === activeTab) option.selected = true;
+                select.appendChild(option);
+            });
+            
+            select.onchange = loadTabContent;
+        }
+        
+        function loadTabContent() {
+            const selectedTab = document.getElementById('content-tab-select').value;
+            const tab = tabs[selectedTab];
+            
+            if (tab) {
+                document.getElementById('content-title').value = tab.title;
+                document.getElementById('content-text').value = tab.content;
+            }
+        }
+        
+        function updateContent() {
+            const selectedTab = document.getElementById('content-tab-select').value;
+            const title = document.getElementById('content-title').value;
+            const content = document.getElementById('content-text').value;
+            
+            if (tabs[selectedTab]) {
+                tabs[selectedTab].title = title || tabs[selectedTab].name;
+                tabs[selectedTab].content = content || 'Contenido vacío';
+                
+                if (selectedTab === activeTab) {
+                    renderContent();
+                }
+                
+                showNotification('✅ Contenido actualizado');
+            }
+        }
+        
+        function deleteTab(tabId) {
+            if (tabId === 'inicio') return;
+            
+            if (confirm('¿Estás seguro de que quieres eliminar esta pestaña?')) {
+                delete tabs[tabId];
+                
+                if (activeTab === tabId) {
+                    activeTab = 'inicio';
+                }
+                
+                renderTabs();
+                renderContent();
+                updateTabSelector();
+                showNotification('✅ Pestaña eliminada');
+            }
+        }
+        
+        function resetWebsite() {
+            if (confirm('¿Estás seguro de que quieres resetear todo el contenido?')) {
+                tabs = {
+                    'inicio': {
+                        name: 'Inicio',
+                        icon: '🏠',
+                        title: 'Bienvenido',
+                        content: 'Esta es una página web minimalista con un editor integrado. Puedes personalizar el contenido y añadir nuevas pestañas directamente desde el navegador.\n\nHaz clic en el botón "Editar" en la esquina superior derecha para comenzar a personalizar tu sitio web.'
+                    }
+                };
+                
+                activeTab = 'inicio';
+                document.getElementById('site-title').textContent = 'Mi Sitio Web';
+                document.getElementById('site-subtitle').textContent = 'Diseño minimalista y funcional';
+                
+                renderTabs();
+                renderContent();
+                loadEditorData();
+                showNotification('✅ Sitio web reseteado');
+            }
+        }
+        
+        function showNotification(message) {
+            // Crear notificación temporal
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+            
+            // Añadir estilos de animación si no existen
+            if (!document.getElementById('notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTabs();
+            renderContent();
+            
+            // Añadir animaciones de entrada
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+        
+        // Cerrar editor con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isEditMode) {
+                closeEditor();
+            }
+        });
+    </script>
+</body>
+</html>
