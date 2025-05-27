@@ -374,6 +374,16 @@
         </div>
         
         <div class="editor-section">
+            <h3>💾 Guardar/Cargar</h3>
+            <button class="btn" onclick="exportData()">📥 Exportar Datos</button>
+            <div class="form-group">
+                <label for="import-file">Importar datos guardados:</label>
+                <input type="file" id="import-file" accept=".json" style="margin-bottom: 10px;">
+                <button class="btn" onclick="importData()">📤 Importar Datos</button>
+            </div>
+        </div>
+        
+        <div class="editor-section">
             <h3>🗑️ Gestión</h3>
             <button class="btn btn-danger" onclick="resetWebsite()">🔄 Resetear Todo</button>
         </div>
@@ -657,6 +667,63 @@
                 el.style.animationDelay = `${index * 0.1}s`;
             });
         });
+        
+        // Funciones de exportar/importar
+        function exportData() {
+            const data = {
+                siteTitle: document.getElementById('site-title').textContent,
+                siteSubtitle: document.getElementById('site-subtitle').textContent,
+                tabs: tabs,
+                activeTab: activeTab,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mi-sitio-web-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('✅ Datos exportados correctamente');
+        }
+        
+        function importData() {
+            const fileInput = document.getElementById('import-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showNotification('❌ Por favor, selecciona un archivo');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Restaurar datos
+                    if (data.siteTitle) document.getElementById('site-title').textContent = data.siteTitle;
+                    if (data.siteSubtitle) document.getElementById('site-subtitle').textContent = data.siteSubtitle;
+                    if (data.tabs) tabs = data.tabs;
+                    if (data.activeTab && tabs[data.activeTab]) activeTab = data.activeTab;
+                    
+                    // Re-renderizar
+                    renderTabs();
+                    renderContent();
+                    loadEditorData();
+                    
+                    showNotification('✅ Datos importados correctamente');
+                    fileInput.value = '';
+                } catch (error) {
+                    showNotification('❌ Error al importar: archivo inválido');
+                }
+            };
+            reader.readAsText(file);
+        }
         
         // Cerrar editor con ESC
         document.addEventListener('keydown', function(e) {
