@@ -200,31 +200,6 @@
             opacity: 0.8;
         }
         
-        .calendar-widget {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .calendar-day {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            margin-bottom: 8px;
-            background: rgba(236, 240, 241, 0.3);
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .calendar-day.has-tasks {
-            border-left: 4px solid #e74c3c;
-        }
-        
-        .calendar-day.completed {
-            border-left-color: #27ae60;
-            opacity: 0.7;
-        }
-        
         .task-item {
             display: flex;
             align-items: center;
@@ -437,19 +412,17 @@
                 transform: translateY(0);
             }
         }
+
     </style>
 </head>
 <body>
     <div class="overlay" onclick="closeEditor()"></div>
-    
     <button class="edit-toggle" onclick="toggleEditor()">⚙️ Gestionar</button>
-    
     <div class="container">
         <header class="fade-in">
             <h1 id="site-title">Mi Plataforma Académica</h1>
             <p class="subtitle" id="site-subtitle">Organiza tus estudios de manera eficiente</p>
         </header>
-        
         <div class="main-nav fade-in">
             <div class="nav-section">
                 <h3>📚 Asignaturas</h3>
@@ -458,7 +431,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="content-area fade-in">
             <div class="main-content" id="main-content">
                 <h2 id="content-title">Bienvenido a tu Plataforma Académica</h2>
@@ -474,7 +446,6 @@
                     <p>Comienza haciendo clic en "Gestionar" para configurar tus asignaturas.</p>
                 </div>
             </div>
-            
             <div class="sidebar">
                 <div class="widget">
                     <h4>🗂️ Estructura de Temas</h4>
@@ -482,7 +453,6 @@
                         <div class="topic-item">📖 Selecciona una asignatura</div>
                     </div>
                 </div>
-                
                 <div class="widget">
                     <h4>📅 Próximas Tareas</h4>
                     <div class="calendar-widget" id="calendar-widget">
@@ -491,7 +461,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="widget">
                     <h4>📊 Progreso General</h4>
                     <div class="progress-bar">
@@ -502,7 +471,7 @@
             </div>
         </div>
     </div>
-    
+    <!-- PANEL DE GESTIÓN (SIN CAMBIOS, COMO EN TU ORIGINAL) -->
     <div class="editor-panel" id="editor-panel">
         <div class="editor-section">
             <h3>🎨 Configuración General</h3>
@@ -516,7 +485,6 @@
             </div>
             <button class="btn" onclick="updateSiteInfo()">💾 Actualizar</button>
         </div>
-        
         <div class="editor-section">
             <h3>📚 Nueva Asignatura</h3>
             <div class="form-group">
@@ -533,7 +501,6 @@
             </div>
             <button class="btn" onclick="addSubject()">➕ Añadir Asignatura</button>
         </div>
-        
         <div class="editor-section">
             <h3>🗂️ Gestionar Temas</h3>
             <div class="form-group">
@@ -553,7 +520,6 @@
             <button class="btn" onclick="addTopic()">➕ Añadir Tema</button>
             <button class="btn btn-danger" onclick="deleteTopic()">🗑️ Eliminar Tema</button>
         </div>
-        
         <div class="editor-section">
             <h3>📝 Editar Contenido</h3>
             <div class="form-group">
@@ -574,7 +540,6 @@
             </div>
             <button class="btn" onclick="updateContent()">💾 Guardar Contenido</button>
         </div>
-        
         <div class="editor-section">
             <h3>📅 Gestionar Tareas</h3>
             <div class="form-group">
@@ -600,7 +565,6 @@
             </div>
             <button class="btn" onclick="addTask()">➕ Añadir Tarea</button>
         </div>
-        
         <div class="editor-section">
             <h3>💾 Exportar/Importar</h3>
             <button class="btn" onclick="exportData()">📥 Exportar Datos</button>
@@ -609,44 +573,19 @@
                 <button class="btn" onclick="importData()">📤 Importar</button>
             </div>
         </div>
-        
         <div class="editor-section">
             <h3>🔄 Gestión</h3>
             <button class="btn btn-danger" onclick="resetAll()">🗑️ Resetear Todo</button>
         </div>
     </div>
-    
     <script>
         // Estado de la aplicación
         let isEditMode = false;
-        let activeSubject = 'matematicas';
+        let activeSubject = '';
         let activeTopic = null;
         
         // Datos de la aplicación
         let subjects = {
-            'matematicas': {
-                name: 'Matemáticas',
-                icon: '📊',
-                color: '#667eea',
-                topics: {
-                    'algebra': {
-                        name: 'Álgebra',
-                        parent: null,
-                        content: {
-                            title: 'Introducción al Álgebra',
-                            text: 'El álgebra es una rama de las matemáticas que estudia las estructuras, las relaciones y las cantidades.'
-                        }
-                    },
-                    'ecuaciones': {
-                        name: 'Ecuaciones Lineales',
-                        parent: 'algebra',
-                        content: {
-                            title: 'Ecuaciones de Primer Grado',
-                            text: 'Las ecuaciones lineales son expresiones matemáticas de la forma ax + b = 0.'
-                        }
-                    }
-                }
-            }
         };
         
         let tasks = [];
@@ -933,47 +872,6 @@
             showNotification('✅ Tarea añadida');
         }
         
-        function renderTasks() {
-            const container = document.getElementById('calendar-widget');
-            const today = new Date();
-            const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-            
-            // Filtrar tareas próximas
-            const upcomingTasks = tasks.filter(task => {
-                const taskDate = new Date(task.date);
-                return taskDate >= today && taskDate <= nextWeek;
-            });
-            
-            if (upcomingTasks.length === 0) {
-                container.innerHTML = '<div class="calendar-day"><span>No hay tareas próximas</span></div>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            upcomingTasks.forEach(task => {
-                const subject = subjects[task.subjectId];
-                const taskDiv = document.createElement('div');
-                taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
-                
-                const typeIcons = {
-                    homework: '📝',
-                    exam: '📊',
-                    project: '🔬',
-                    study: '📚'
-                };
-                
-                taskDiv.innerHTML = `
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
-                           onchange="toggleTask('${task.id}')">
-                    <span>${typeIcons[task.type]} ${task.title}</span>
-                    <small>${subject ? subject.name : 'Sin asignatura'} - ${formatDate(task.date)}</small>
-                `;
-                
-                container.appendChild(taskDiv);
-            });
-        }
-        
         function toggleTask(taskId) {
             const task = tasks.find(t => t.id === taskId);
             if (task) {
@@ -1069,63 +967,53 @@
             }
         }
         
+        // ----- Exportar datos -----
         function exportData() {
-            const data = {
-                siteTitle: document.getElementById('site-title').textContent,
-                siteSubtitle: document.getElementById('site-subtitle').textContent,
-                subjects: subjects,
-                tasks: tasks,
-                activeSubject: activeSubject,
-                activeTopic: activeTopic,
-                timestamp: new Date().toISOString(),
-                version: '2.0'
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const data = { subjects, tasks };
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
+
             const a = document.createElement('a');
             a.href = url;
-            a.download = `plataforma-academica-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = 'export.json';
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showNotification('✅ Datos exportados');
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+
+            showNotification('✅ Datos exportados correctamente');
         }
         
+        // ----- Importar datos -----
         function importData() {
             const fileInput = document.getElementById('import-file');
-            const file = fileInput.files[0];
-            
-            if (!file) {
+            if (!fileInput.files.length) {
                 showNotification('❌ Selecciona un archivo');
                 return;
             }
-            
+            const file = fileInput.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    
-                    if (data.siteTitle) document.getElementById('site-title').textContent = data.siteTitle;
-                    if (data.siteSubtitle) document.getElementById('site-subtitle').textContent = data.siteSubtitle;
-                    if (data.subjects) subjects = data.subjects;
-                    if (data.tasks) tasks = data.tasks;
-                    if (data.activeSubject && subjects[data.activeSubject]) activeSubject = data.activeSubject;
-                    if (data.activeTopic) activeTopic = data.activeTopic;
-                    
-                    renderSubjects();
-                    renderTopics();
-                    renderContent();
-                    renderTasks();
-                    updateProgress();
-                    loadEditorData();
-                    
-                    showNotification('✅ Datos importados');
-                    fileInput.value = '';
-                } catch (error) {
-                    showNotification('❌ Error al importar archivo');
+                    if (data.subjects && data.tasks) {
+                        subjects = data.subjects;
+                        tasks = data.tasks;
+                        renderSubjects();
+                        renderTopics();
+                        renderContent();
+                        renderTasks();
+                        updateProgress();
+                        updateSubjectSelectors();
+                        showNotification('✅ Datos importados correctamente');
+                    } else {
+                        showNotification('❌ Archivo no válido');
+                    }
+                } catch (err) {
+                    showNotification('❌ Error al leer el archivo');
                 }
             };
             reader.readAsText(file);
@@ -1270,6 +1158,39 @@
                 }
             }
         });
+
+        // ----- Importar datos -----
+        function importData() {
+            const fileInput = document.getElementById('import-file');
+            if (!fileInput.files.length) {
+                showNotification('❌ Selecciona un archivo');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.subjects && data.tasks) {
+                        subjects = data.subjects;
+                        tasks = data.tasks;
+                        renderSubjects();
+                        renderTopics();
+                        renderContent();
+                        renderTasks();
+                        updateProgress();
+                        updateSubjectSelectors();
+                        showNotification('✅ Datos importados correctamente');
+                    } else {
+                        showNotification('❌ Archivo no válido');
+                    }
+                } catch (err) {
+                    showNotification('❌ Error al leer el archivo');
+                }
+            };
+            reader.readAsText(file);
+        }
+
     </script>
 </body>
 </html>
