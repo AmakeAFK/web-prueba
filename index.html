@@ -667,10 +667,66 @@
             updateSubjectSelectors();
         }
         
+
+        function renderTasks() {
+            const container = document.getElementById('calendar-widget');
+            container.innerHTML = '';
+
+            const filteredTasks = activeSubject === '__calendar__'
+                ? tasks
+                : tasks.filter(task => task.subjectId === activeSubject);
+
+            if (filteredTasks.length === 0) {
+                container.innerHTML = '<div class="calendar-day"><span>No hay tareas pendientes</span></div>';
+                return;
+            }
+
+            // Agrupar tareas por fecha
+            const grouped = {};
+            filteredTasks.forEach(task => {
+                const label = formatDate(task.date);
+                if (!grouped[label]) grouped[label] = [];
+                grouped[label].push(task);
+            });
+
+            Object.entries(grouped).forEach(([dateLabel, taskList]) => {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                
+                const heading = document.createElement('h5');
+                heading.textContent = dateLabel;
+                heading.style.margin = '10px 0';
+                dayDiv.appendChild(heading);
+
+                taskList.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'task-checkbox';
+                    checkbox.checked = task.completed;
+                    checkbox.onclick = () => toggleTask(task.id);
+
+                    const titleSpan = document.createElement('span');
+                    titleSpan.textContent = task.title;
+
+                    taskDiv.appendChild(checkbox);
+                    taskDiv.appendChild(titleSpan);
+
+                    dayDiv.appendChild(taskDiv);
+                });
+
+                container.appendChild(dayDiv);
+            });
+        }          
+
+
+
         function renderSubjects() {
             const container = document.getElementById('subject-tabs');
             container.innerHTML = '';
-            
+
             Object.entries(subjects).forEach(([id, subject]) => {
                 const tab = document.createElement('div');
                 tab.className = `subject-tab ${id === activeSubject ? 'active' : ''}`;
@@ -679,14 +735,34 @@
                 tab.onclick = () => switchSubject(id);
                 container.appendChild(tab);
             });
+
+            const calendarTab = document.createElement('div');
+            calendarTab.className = `subject-tab ${activeSubject === '__calendar__' ? 'active' : ''}`;
+            calendarTab.setAttribute('data-subject', '__calendar__');
+            calendarTab.innerHTML = '📅 Calendario';
+            calendarTab.onclick = () => switchSubject('__calendar__');
+            container.appendChild(calendarTab);
         }
         
         function switchSubject(subjectId) {
             activeSubject = subjectId;
             activeTopic = null;
+
             renderSubjects();
+
+            if (subjectId === '__calendar__') {
+                document.getElementById('content-title').textContent = '📅 Calendario de Tareas';
+                document.getElementById('content-text').innerHTML = '<p>Aquí tienes todas tus tareas agrupadas por fecha.</p>';
+                document.getElementById('topic-tree').innerHTML = '<div class="topic-item">📅 Modo calendario activado</div>';
+                renderTasks();
+                updateProgress();
+                return;
+            }
+
             renderTopics();
             renderContent();
+            renderTasks();
+            updateProgress();
         }
         
         function addTopic() {
@@ -1074,13 +1150,13 @@
             const date = new Date(dateString);
             const today = new Date();
             const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-            
+
             if (date.toDateString() === today.toDateString()) {
                 return 'Hoy';
             } else if (date.toDateString() === tomorrow.toDateString()) {
                 return 'Mañana';
             } else {
-                return date.toLocaleDateString('es-ES');
+                return date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             }
         }
         
